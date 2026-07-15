@@ -164,59 +164,54 @@
 
 <script>
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby106jH7T4DLir347pWprGO0AMwW43SCncD9aFYlfbCE1flgA7tlohLiOMEF2eitZvlZg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyi6cERwVXcvaNY1tVk-8WkyU8w66BK7F4c7GI0xUn8jNvBHPtV_SPv2zb3wKnZp5xNfg/exec";
 
-document.getElementById("ksos-form").addEventListener("submit", async function (e) {
+document.getElementById("ksos-form").addEventListener("submit", function(e){
 
     e.preventDefault();
 
-    const submitBtn = document.querySelector(".btn");
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = "Submitting...";
+    const btn = document.querySelector(".btn");
 
-    const formData = {
-        name: document.getElementById("name").value.trim(),
-        company: document.getElementById("company").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        mobile: document.getElementById("phone").value.trim(),
+    btn.disabled = true;
+    btn.innerHTML = "Submitting...";
+
+    const data = {
+        name: document.getElementById("name").value,
+        company: document.getElementById("company").value,
+        email: document.getElementById("email").value,
+        mobile: document.getElementById("phone").value,
         region: document.getElementById("city").value,
-        message: document.getElementById("message").value.trim()
+        message: document.getElementById("message").value
     };
 
-    try {
+    fetch(SCRIPT_URL,{
+        method:"POST",
+        mode:"no-cors",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify(data)
+    })
+    .then(() => {
 
-        const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        });
+        alert("Thank you for registering.\n\nOur regional team will contact you shortly.");
 
-        const result = await response.json();
+        document.getElementById("ksos-form").reset();
 
-        if (result.success) {
+    })
+    .catch(err => {
 
-            alert("Thank you! Your registration has been submitted successfully. Our team will contact you shortly.");
+        console.log(err);
 
-            document.getElementById("ksos-form").reset();
+        alert("Unable to submit the form.");
 
-        } else {
+    })
+    .finally(() => {
 
-            alert("Submission failed.\n\n" + (result.error || ""));
+        btn.disabled = false;
+        btn.innerHTML = "Register Your Interest →";
 
-        }
-
-    } catch (err) {
-
-        alert("Unable to submit the form.\n\nPlease try again later.");
-
-        console.error(err);
-
-    }
-
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = "Register Your Interest →";
+    });
 
 });
 
