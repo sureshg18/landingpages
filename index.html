@@ -163,35 +163,63 @@
 </footer>
 
 <script>
-  // Static-page fallback: route the enquiry to the regional eCAPS contact by email.
-  var REGION_EMAILS = {
-    "Coimbatore": "krishna@caps.in",
-    "Chennai": "saleschn1@caps.in",
-    "Vizag": "vijaykv@caps.in",
-    "Bangalore": "sarala@caps.in",
-    "Cochin": "salesekm@caps.in",
-    "Hyderabad": "saleshyd@caps.in",
-    "Madurai": "gps@caps.in",
-    "Other": "sarala@caps.in"
-  };
-  document.getElementById("ksos-form").addEventListener("submit", function (e) {
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby106jH7T4DLir347pWprGO0AMwW43SCncD9aFYlfbCE1flgA7tlohLiOMEF2eitZvlZg/exec";
+
+document.getElementById("ksos-form").addEventListener("submit", async function (e) {
+
     e.preventDefault();
-    var f = e.target;
-    var region = f.region.value;
-    var to = REGION_EMAILS[region] || "sarala@caps.in";
-    var subject = "KSOS Partner Interest — " + f.company.value + " (" + region + ")";
-    var body =
-      "Name: " + f.name.value + "\n" +
-      "Company: " + f.company.value + "\n" +
-      "Business email: " + f.email.value + "\n" +
-      "Mobile: " + f.phone.value + "\n" +
-      "Region: " + region + "\n" +
-      "Message: " + (f.message.value || "-") + "\n\n" +
-      "Source: KSOS All South Intro mail / landing page";
-    window.location.href = "mailto:" + to +
-      "?subject=" + encodeURIComponent(subject) +
-      "&body=" + encodeURIComponent(body);
-  });
+
+    const submitBtn = document.querySelector(".btn");
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = "Submitting...";
+
+    const formData = {
+        name: document.getElementById("name").value.trim(),
+        company: document.getElementById("company").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        mobile: document.getElementById("phone").value.trim(),
+        region: document.getElementById("city").value,
+        message: document.getElementById("message").value.trim()
+    };
+
+    try {
+
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+
+            alert("Thank you! Your registration has been submitted successfully. Our team will contact you shortly.");
+
+            document.getElementById("ksos-form").reset();
+
+        } else {
+
+            alert("Submission failed.\n\n" + (result.error || ""));
+
+        }
+
+    } catch (err) {
+
+        alert("Unable to submit the form.\n\nPlease try again later.");
+
+        console.error(err);
+
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = "Register Your Interest →";
+
+});
+
 </script>
 
 </body>
